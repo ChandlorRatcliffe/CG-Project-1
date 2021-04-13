@@ -62,6 +62,11 @@ void TransformationMatrix::composeWith(TransformationMatrix *other) {
 	}
 	//Otherwise, compose should make no change because the identity matrix makes no change.
 }
+void TransformationMatrix::copyFrom(TransformationMatrix* other) {
+	for (int row = 0; row < 3; ++row)
+		for (int column = 0; column < 3; ++column)
+			this->matrix[row][column] = other->matrix[row][column];
+}
 void TransformationMatrix::printMatrix() {
 	std::string output = "";
 	for (int row = 0; row < 3; ++row) {

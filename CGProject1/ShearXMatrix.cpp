@@ -21,7 +21,5 @@ ShearXMatrix::ShearXMatrix(float sx, float yAxis) {
 	C.composeWith(&Tdown);
 	C.composeWith(&S);
 	C.composeWith(&Tup);
-	for (int row = 0; row < 3; ++row)
-		for (int column = 0; column < 3; ++column)
-			this->matrix[row][column] = C.matrix[row][column];
+	copyFrom(&C);
 }
