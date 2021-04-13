@@ -9,5 +9,5 @@ TranslationMatrix::TranslationMatrix(float tx, float ty) {
 	this->matrix[2][0] = 0.0;
 	this->matrix[2][1] = 0.0;
 	this->matrix[2][2] = 1.0;
-	this->type = Type::SCALE;
+	this->type = Type::TRANSLATION;
 }
