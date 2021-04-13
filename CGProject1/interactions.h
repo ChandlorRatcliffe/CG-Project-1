@@ -1,7 +1,5 @@
 #ifndef INTERACTIONS_H
 #define INTERACTIONS_H
-#include <vector>
-
 
 namespace Interactions {
 
@@ -11,6 +9,7 @@ namespace Interactions {
     void handleMouseEvent(int button, int state, int x, int y);
     void handleMotionEvent(int x, int y);
     void drawScene(void);
+    void timer(int v);
 
     class Coordinate {
     public:
@@ -37,6 +36,7 @@ namespace Interactions {
         int vert_count = 0;
         bool is_polygon_clicked = false;
         bool is_polygon_moving = false;
+        bool is_polygon_rot = true;
 
         Polygon(int v_count, std::vector<Coordinate> v) {
             vertices = v;

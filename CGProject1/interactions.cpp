@@ -1,5 +1,7 @@
 #include <GL/glut.h>
+#include <vector>
 #include "interactions.h"
+#include "commonLibs.h"
 
 using namespace Interactions;
 
@@ -9,6 +11,62 @@ Interactions::Polygon shape;
 
 bool polygon_created = false;
 int coord_count = 0;
+GLfloat rotation_angle = 90.0;
+GLfloat centroid[2];
+
+void calcCentroid() {
+    GLfloat xSum = 0, ySum = 0;
+    for (int i = 0; i < shape.vert_count; i++) {
+        xSum += shape.vertices[i].coords[0];
+        ySum += shape.vertices[i].coords[1];
+    }
+    centroid[0] = xSum / shape.vert_count;
+    centroid[1] = ySum / shape.vert_count;
+}
+
+void startRotation(int x) {
+    TransformationMatrix R = RotationMatrix(rotation_angle);
+    TransformationMatrix T = TranslationMatrix(centroid[0], centroid[1]);
+    TransformationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
+    T.composeWith(&R);
+    T.composeWith(&TI);
+    T.applyTo(shape.vertices[x].coords);
+}
+
+void doTranslation(int x, int y) {
+    calcCentroid();
+    GLfloat new_center[2] = { (GLfloat)x, WINDOW_HEIGHT - (GLfloat)y };
+    printf("Centered at mouse and moving pos [%f, %f]\n", new_center[0], new_center[1]);
+
+    GLfloat tx = new_center[0] - centroid[0];
+    GLfloat ty = new_center[1] - centroid[1];
+    printf("[tx,ty] = [%f, %f]\n", tx, ty);
+
+    TranslationMatrix T = TranslationMatrix(tx, ty);
+    for (int i = 0; i < shape.vert_count; i++) {
+        T.applyTo(shape.vertices[i].coords);
+    }
+}
+
+/*
+ * Subtracts the current (x, y) coordinate from the first
+ * and checks if that value is in the range of -10 <= x,y <= 10
+ */
+bool isInRange() {
+    float temp_x = current.coords[0] - coord_collect[0].coords[0];
+    float temp_y = current.coords[1] - coord_collect[0].coords[1];
+    bool in_range = -10 <= temp_x && temp_x <= 10 &&
+        -10 <= temp_y && temp_y <= 10;
+
+    return in_range;
+}
+
+// Function to create a polygon and setting the polygon_created variable to true
+void definePolygon() {
+    shape = Interactions::Polygon(coord_count, coord_collect);
+    polygon_created = true;
+    calcCentroid();
+}
 
 /*
  * Drawing coordinates grabbed from mouse clicks to the window
@@ -26,32 +84,13 @@ void Coordinate::drawPoint() {
 
 void Polygon::drawPolygon() {
     glBegin(GL_POLYGON);
-    for (auto i = 0; i < coord_count; i++) {
+    for (auto i = 0; i < shape.vert_count; i++) {
+        if (is_polygon_rot) {
+            startRotation(i);
+        }
         glVertex2fv(this->vertices[i].coords);
     }
     glEnd();
-}
-
-/*
- * Subtracts the current (x, y) coordinate from the first
- * and checks if that value is in the range of -10 <= x,y <= 10
- */
-bool isInRange() {
-    float temp_x  = current.coords[0] - coord_collect[0].coords[0];
-    float temp_y  = current.coords[1] - coord_collect[0].coords[1];
-    bool in_range = -10 <= temp_x && temp_x <= 10 &&
-                    -10 <= temp_y && temp_y <= 10;
-
-    return in_range;
-}
-
-
-// Function to create a polygon and setting the polygon_created variable to true
-void definePolygon() {
-    shape = Interactions::Polygon(coord_count, coord_collect);
-    polygon_created = true;
-    
-    // in place rotation upon creation of polygon
 }
 
 /*
@@ -75,11 +114,18 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
     if (left_click_down && !polygon_created) {
         current = Coordinate((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
     }
-    else if (left_click_down && polygon_created) { 
-        // function to handle translation with mouse
+    else if (left_click_down && polygon_created) {
+        switch (modifier) {
+        case 1:printf("scaling\n"); break;
+        case 4:printf("Reverse rotation\n"); break;
+        default: shape.is_polygon_rot = false; break;
+        }
+        // stop rotation so transformation can be performed
+        shape.is_polygon_rot = false;
     }
-    else if (left_click_down && polygon_created && (modifier == 1)) {
-        // function to handle scaling with mouse
+    else if (left_click_up && !shape.is_polygon_rot) { 
+        // restart rotation after any transformations are finished
+        shape.is_polygon_rot = true;
     }
 
     if (left_click_up && !polygon_created) {
@@ -104,6 +150,10 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
  */
 void Interactions::handleMotionEvent(int x, int y) {
     current.setCoord((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
+
+    if (polygon_created) {
+        doTranslation(x, y);
+    }
     glutPostRedisplay();
 }
 
@@ -128,6 +178,20 @@ void Interactions::drawScene(void)
     }
     
     glFlush();
+}
+
+/*
+ *
+ */
+void Interactions::timer(int v) {
+    if (shape.is_polygon_rot) {
+        rotation_angle += 1.0;
+        if (rotation_angle > 360.0) {
+            rotation_angle = 0;
+        }
+        glutPostRedisplay();
+    }
+    glutTimerFunc(1000 / 60, timer, v);
 }
 
 
