@@ -141,15 +141,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CGProject1.cpp" />
+    <ClCompile Include="CompositeMatrix.cpp" />
     <ClCompile Include="RotationMatrix.cpp" />
+    <ClCompile Include="ScaleMatrix.cpp" />
+    <ClCompile Include="ShearXMatrix.cpp" />
+    <ClCompile Include="ShearYMatrix.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
+    <ClCompile Include="TranslationMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="commonLibs.h" />
+    <ClInclude Include="CompositeMatrix.h" />
     <ClInclude Include="RotationMatrix.h" />
+    <ClInclude Include="ScaleMatrix.h" />
+    <ClInclude Include="ShearXMatrix.h" />
+    <ClInclude Include="ShearYMatrix.h" />
     <ClInclude Include="TransformationMatrix.h" />
+    <ClInclude Include="TranslationMatrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
