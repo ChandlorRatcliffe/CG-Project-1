@@ -62,3 +62,14 @@ void TransformationMatrix::composeWith(TransformationMatrix *other) {
 	}
 	//Otherwise, compose should make no change because the identity matrix makes no change.
 }
+void TransformationMatrix::printMatrix() {
+	std::string output = "";
+	for (int row = 0; row < 3; ++row) {
+		output += "[" + std::to_string(this->matrix[row][0]);
+		for (int column = 1; column < 3; ++column) {
+			output += ", " + std::to_string(this->matrix[row][column]);
+		}
+		output += "]\r\n";
+	}
+	std::cout << output;
+}
