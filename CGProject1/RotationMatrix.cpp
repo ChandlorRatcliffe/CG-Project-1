@@ -1,4 +1,5 @@
 #include "RotationMatrix.h"
+#include "commonLibs.h"
 RotationMatrix::RotationMatrix(float angle) {
 	this->matrix[0][0] =  cos(deg2rad(angle));
 	this->matrix[0][1] = -sin(deg2rad(angle));

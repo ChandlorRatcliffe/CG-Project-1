@@ -1,4 +1,5 @@
 #include "ShearXMatrix.h"
+#include "TranslationMatrix.h"
 ShearXMatrix::ShearXMatrix(float sx) {
 	this->matrix[0][0] = 1.0;
 	this->matrix[0][1] = sx;

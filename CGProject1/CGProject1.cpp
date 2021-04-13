@@ -33,5 +33,7 @@ int main() {
 	std::cout << "v2 = <" << v2[0] << ", " << v2[1] << ">\r\n";
 	std::cout << "v3 = <" << v3[0] << ", " << v3[1] << ">\r\n";
 
+	//v1 should equal v3. v2 should be the odd one out.
+
 	return 0;
 }
