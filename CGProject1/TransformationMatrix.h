@@ -14,7 +14,7 @@ public:
 	};
 	Type type;
 	TransformationMatrix();
-	void applyTo(float[]);
+	void applyTo(float[2]);
 	void composeWith(TransformationMatrix*);
 protected:
 	float matrix[3][3];
