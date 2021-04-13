@@ -8,7 +8,7 @@ TransformationMatrix::TransformationMatrix() {
 	for (int row = 0; row < 3; ++row)
 		for (int column = 0; column < 3; ++column)
 			this->matrix[row][column] = float(row == column);
-	this->type = IDENTITY;
+	this->type = Type::IDENTITY;
 }
 /**
  * Take a vector float[2] by reference, and modify it to contain
@@ -17,7 +17,7 @@ TransformationMatrix::TransformationMatrix() {
 void TransformationMatrix::applyTo(float vector[2]) {
 	//The only time apply should change the vector given is if 
 	//this isn't an identity matrix.
-	if (this->type != IDENTITY) {
+	if (this->type != Type::IDENTITY) {
 		//Extend the vector
 		float homogeneousVector[3][1] = { {vector[0]}, {vector[1]}, {1.0} };
 		//Create a place for the result
@@ -39,7 +39,7 @@ void TransformationMatrix::applyTo(float vector[2]) {
 void TransformationMatrix::composeWith(TransformationMatrix *other) {
 	//added optimization to remove matrix mulitplication steps from identity matrix results.
 	//If neither transformation matrix is an identity matrix, proceed as normal.
-	if (other->type != IDENTITY && this->type != IDENTITY) {
+	if (other->type != Type::IDENTITY && this->type != Type::IDENTITY) {
 		//Create a place for the result
 		float product[3][3] = { {0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0} };
 		//Perform the multiplication
@@ -51,10 +51,10 @@ void TransformationMatrix::composeWith(TransformationMatrix *other) {
 		for (int row = 0; row < 3; ++row)
 			for (int column = 0; column < 3; ++column)
 				this->matrix[row][column] = product[row][column];
-		this->type = COMPOSITE;
+		this->type = Type::COMPOSITE;
 	}
 	//If this is an identity matrix but the other one isn't, copy that matrix and type to this one.
-	else if (this->type == IDENTITY) {
+	else if (this->type == Type::IDENTITY) {
 		for (int row = 0; row < 3; ++row)
 			for (int column = 0; column < 3; ++column)
 				this->matrix[row][column] = other->matrix[row][column];

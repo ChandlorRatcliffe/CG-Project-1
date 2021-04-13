@@ -141,12 +141,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CGProject1.cpp" />
+    <ClCompile Include="RotationMatrix.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RotationMatrix.h" />
     <ClInclude Include="TransformationMatrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

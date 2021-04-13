@@ -1,8 +1,9 @@
 #pragma once
+#include "commonLibs.h"
 class TransformationMatrix
 {
 public:
-	enum Type{
+	enum class Type{
 		IDENTITY,
 		ROTATION,
 		TRANSLATION,
