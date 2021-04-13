@@ -24,7 +24,6 @@ namespace Interactions {
         Coordinate() {};
 
         void drawPoint();
-        void setFirst();
 
         void setCoord(GLfloat x, GLfloat y) {
             coords[0] = x; coords[1] = y;
@@ -36,8 +35,8 @@ namespace Interactions {
 
         std::vector<Coordinate> vertices;
         int vert_count = 0;
-        bool isPolygonClicked = false;
-        bool isPolygonMoving = false;
+        bool is_polygon_clicked = false;
+        bool is_polygon_moving = false;
 
         Polygon(int v_count, std::vector<Coordinate> v) {
             vertices = v;
