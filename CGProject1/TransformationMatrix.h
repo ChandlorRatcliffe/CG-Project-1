@@ -17,7 +17,6 @@ public:
 	void applyTo(float[2]);
 	void composeWith(TransformationMatrix*);
 	void printMatrix();
-protected:
 	float matrix[3][3];
 };
 

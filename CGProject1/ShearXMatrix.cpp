@@ -1,5 +1,6 @@
 #include "ShearXMatrix.h"
 #include "TranslationMatrix.h"
+#include "CompositeMatrix.h"
 ShearXMatrix::ShearXMatrix(float sx) {
 	this->matrix[0][0] = 1.0;
 	this->matrix[0][1] = sx;
@@ -13,17 +14,14 @@ ShearXMatrix::ShearXMatrix(float sx) {
 	this->type = Type::SHEARX;
 }
 ShearXMatrix::ShearXMatrix(float sx, float yAxis) {
-	this->matrix[0][0] = 1.0;
-	this->matrix[0][1] = sx;
-	this->matrix[0][2] = 0.0;
-	this->matrix[1][0] = 0.0;
-	this->matrix[1][1] = 1.0;
-	this->matrix[1][2] = 0.0;
-	this->matrix[2][0] = 0.0;
-	this->matrix[2][1] = 0.0;
-	this->matrix[2][2] = 1.0;
-	this->type = Type::SHEARX;
-	TranslationMatrix T = TranslationMatrix(0.0, -yAxis);
-	this->composeWith(&T);
-
+	CompositeMatrix       C = CompositeMatrix();
+	TranslationMatrix   Tup = TranslationMatrix(0.0, yAxis);
+	TranslationMatrix Tdown = TranslationMatrix(0.0, -yAxis);
+	ShearXMatrix          S = ShearXMatrix(sx);
+	C.composeWith(&Tdown);
+	C.composeWith(&S);
+	C.composeWith(&Tup);
+	for (int row = 0; row < 3; ++row)
+		for (int column = 0; column < 3; ++column)
+			this->matrix[row][column] = C.matrix[row][column];
 }

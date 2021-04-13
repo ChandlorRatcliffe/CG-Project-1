@@ -7,8 +7,8 @@ int main() {
 	TranslationMatrix T = TranslationMatrix(1.5, 6.2);
 	RotationMatrix    R = RotationMatrix(45.0);
 	ScaleMatrix       S = ScaleMatrix(2.0, 3.0);
-	ShearXMatrix     SX = ShearXMatrix(1.25);
-	ShearYMatrix     SY = ShearYMatrix(1.25);
+	ShearXMatrix     SX = ShearXMatrix(1.25,1.0);
+	ShearYMatrix     SY = ShearYMatrix(1.25,-2.0);
 	CompositeMatrix   C = CompositeMatrix();
 
 	std::vector<TransformationMatrix> transformations = std::vector<TransformationMatrix>();
