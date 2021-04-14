@@ -127,7 +127,7 @@ void Coordinate::drawPoint() {
 void Polygon::drawPolygon() {
     glBegin(GL_POLYGON);
     for (auto i = 0; i < shape.vert_count; i++) {
-        if (is_polygon_rot)
+        if (this->is_rotating)
             startRotatingShape(i);
 
         glVertex2fv(this->vertices[i].coords);
@@ -152,24 +152,10 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
      * 3 - Ctrl + Alt
      * 4 - Alt
      */
+    
     int modifier = glutGetModifiers();
-
-    if (left_click_down && !polygon_created) {
-        current = Coordinate((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
-    }
-    else if (left_click_down && polygon_created) {
-        switch (modifier) {
-        case 1:shape.is_polygon_scaling = true; break;
-        case 4:rotation_angle = -rotation_angle; break; // requires inverse rotation function??
-        default: shape.is_polygon_rot = false; break; // Stops rotation so shape can be transformed
-        }
-    }
-    else if (left_click_up && (!shape.is_polygon_rot || shape.is_polygon_scaling)) {
-        // restart rotation after any transformations are finished
-        shape.is_polygon_rot = true;
-        shape.is_polygon_scaling = false;
-    }
-
+    
+    // Handling points when the mouse clicks in the window
     if (left_click_up && !polygon_created) {
         if (coord_count == 0)
             current.first_point = true;
@@ -180,6 +166,32 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
             definePolygon();
 
         coord_count++;
+    }
+    else {
+
+        if (left_click_down && !polygon_created) {
+            current = Coordinate((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
+        }
+        else if (left_click_down && polygon_created) {
+            switch (modifier) {
+            case GLUT_ACTIVE_SHIFT:
+                shape.is_being_scaled = true;
+                break;
+
+            case GLUT_ACTIVE_ALT:
+                // requires inverse rotation function??
+                break;
+
+            default:
+                shape.is_rotating = false; // Stops rotation so shape can be translated
+                break;
+            }
+        }
+        else if (left_click_up && (!shape.is_rotating || shape.is_being_scaled)) {
+            // restart rotation after any transformations are finished
+            shape.is_rotating = true;
+            shape.is_being_scaled = false;
+        }
     }
 
     // Closes opengl window
@@ -195,10 +207,10 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
 void Interactions::handleMotionEvent(int x, int y) {
     current.setCoord((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
 
-    if (polygon_created && !shape.is_polygon_scaling) {
+    if (polygon_created && !shape.is_being_scaled) {
         startTranslatingshape(x, y);
     }
-    else if (polygon_created && shape.is_polygon_scaling) {
+    else if (polygon_created && shape.is_being_scaled) {
         startScalingShape(x, y);
         old_mouse_coord[0] = (GLfloat)x;
         old_mouse_coord[1] = (GLfloat)y;
@@ -235,7 +247,7 @@ void Interactions::drawScene(void)
  * Currently running at 60fps
  */
 void Interactions::timer(int v) {
-    if (shape.is_polygon_rot) {
+    if (shape.is_rotating) {
         rotation_angle += 1.0f;
         if (rotation_angle > 360.0f) {
             rotation_angle = 0;
