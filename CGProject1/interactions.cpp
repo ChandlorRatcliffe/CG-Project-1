@@ -49,10 +49,8 @@ void startRotatingShape(int x) {
  */
 void startScalingShape(int x, int y) {
     GLfloat mouse_coord[2] = { (GLfloat)x, WINDOW_HEIGHT - (GLfloat)y };
-
     GLfloat sx, sy;
 
-    // find better logic?
     if (mouse_coord[0] > old_mouse_coord[0]) {
         sx = 1.01f; sy = 1.01f;
     }
@@ -60,7 +58,7 @@ void startScalingShape(int x, int y) {
         sx = 0.99f; sy = 0.99f;
     }
     else {
-        sx = 1.0f; sy = 1.0f;
+        sx = 1.0f; sy = 1.0f; // no scaling performed
     }
 
     TransformationMatrix T = TranslationMatrix(centroid[0], centroid[1]);
@@ -74,7 +72,7 @@ void startScalingShape(int x, int y) {
 }
 
 /*
- * Takes care of translation of the polygon, receives (x,y) coordinate
+ * Translation of the polygon, receives (x,y) coordinate
  * from the handleMotionEvent function.
  */
 void startTranslatingshape(int x, int y) {
@@ -144,16 +142,7 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
 
     bool left_click_down = (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN);
     bool left_click_up = (button == GLUT_LEFT_BUTTON && state == GLUT_UP);
-    bool right_click_up = (button == GLUT_RIGHT_BUTTON && state == GLUT_UP);
-
-    /* glutGetModifiers() will return a specific value depending on which modifier key is pressed
-     * 1 - Shift
-     * 2 - Ctrl
-     * 3 - Ctrl + Alt
-     * 4 - Alt
-     */
-    
-    int modifier = glutGetModifiers();
+    bool right_click_up = (button == GLUT_RIGHT_BUTTON && state == GLUT_UP);   
     
     // Handling points when the mouse clicks in the window
     if (left_click_up && !polygon_created) {
@@ -168,6 +157,8 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
         coord_count++;
     }
     else {
+
+        int modifier = glutGetModifiers();
 
         if (left_click_down && !polygon_created) {
             current = Coordinate((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
@@ -194,7 +185,7 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
         }
     }
 
-    // Closes opengl window
+    // Closes current window
     if (right_click_up) exit(0);
 
     glutPostRedisplay();
@@ -202,7 +193,7 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
 
 /*
  * Tracks position of mouse allowing for points to be positioned precisely
- * and transformations to be applied on the polygon
+ * and handle transformations to be applied on the polygon
  */
 void Interactions::handleMotionEvent(int x, int y) {
     current.setCoord((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
@@ -242,8 +233,8 @@ void Interactions::drawScene(void)
 }
 
 /*
- * Timer callback function, Increments rotation_angle by 1 every frame
- * resetting back to 0 once it hits 360 degrees.
+ * Timer callback function, Increments rotation_angle by 1 every frame.
+ * resetting back to 0 once it hits 360 degrees,
  * Currently running at 60fps
  */
 void Interactions::timer(int v) {
