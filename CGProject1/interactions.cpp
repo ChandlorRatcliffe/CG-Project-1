@@ -13,7 +13,12 @@ bool polygon_created = false;
 int coord_count = 0;
 GLfloat rotation_angle = 90.0;
 GLfloat centroid[2];
+GLfloat old_mouse_coord[2];
 
+/*
+ * Finds the center of the polygon(very crude) and populates the array
+ * centroid with the x and y coordinates
+ */
 void calcCentroid() {
     GLfloat xSum = 0, ySum = 0;
     for (int i = 0; i < shape.vert_count; i++) {
@@ -24,7 +29,10 @@ void calcCentroid() {
     centroid[1] = ySum / shape.vert_count;
 }
 
-void startRotation(int x) {
+/*
+ * Starts rotating the polygon in a clockwise manner about its origin
+ */
+void startRotatingShape(int x) {
     TransformationMatrix R = RotationMatrix(rotation_angle);
     TransformationMatrix T = TranslationMatrix(centroid[0], centroid[1]);
     TransformationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
@@ -33,14 +41,48 @@ void startRotation(int x) {
     T.applyTo(shape.vertices[x].coords);
 }
 
-void doTranslation(int x, int y) {
-    calcCentroid();
-    GLfloat new_center[2] = { (GLfloat)x, WINDOW_HEIGHT - (GLfloat)y };
-    printf("Centered at mouse and moving pos [%f, %f]\n", new_center[0], new_center[1]);
+/*
+ * Scales polygon object by a fixed increment +- 0.01
+ * Determines whether or not to scale up or down by comparing the
+ * previous mouse coordinate to the current. Receives (x,y) coordiante
+ * from the handleMotionEvent function.
+ */
+void startScalingShape(int x, int y) {
+    GLfloat mouse_coord[2] = { (GLfloat)x, WINDOW_HEIGHT - (GLfloat)y };
 
-    GLfloat tx = new_center[0] - centroid[0];
-    GLfloat ty = new_center[1] - centroid[1];
-    printf("[tx,ty] = [%f, %f]\n", tx, ty);
+    GLfloat sx, sy;
+
+    // find better logic?
+    if (mouse_coord[0] > old_mouse_coord[0]) {
+        sx = 1.01f; sy = 1.01f;
+    }
+    else if (mouse_coord[0] < old_mouse_coord[0]) {
+        sx = 0.99f; sy = 0.99f;
+    }
+    else {
+        sx = 1.0f; sy = 1.0f;
+    }
+
+    TransformationMatrix T = TranslationMatrix(centroid[0], centroid[1]);
+    TransformationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
+    TransformationMatrix S = ScaleMatrix(sx, sy);
+    T.composeWith(&S);
+    T.composeWith(&TI);
+    for (int i = 0; i < shape.vert_count; i++) {
+        T.applyTo(shape.vertices[i].coords);
+    }
+}
+
+/*
+ * Takes care of translation of the polygon, receives (x,y) coordinate
+ * from the handleMotionEvent function.
+ */
+void startTranslatingshape(int x, int y) {
+    calcCentroid();
+    GLfloat mouse_coord[2] = { (GLfloat)x, WINDOW_HEIGHT - (GLfloat)y };
+
+    GLfloat tx = mouse_coord[0] - centroid[0];
+    GLfloat ty = mouse_coord[1] - centroid[1];
 
     TranslationMatrix T = TranslationMatrix(tx, ty);
     for (int i = 0; i < shape.vert_count; i++) {
@@ -85,9 +127,9 @@ void Coordinate::drawPoint() {
 void Polygon::drawPolygon() {
     glBegin(GL_POLYGON);
     for (auto i = 0; i < shape.vert_count; i++) {
-        if (is_polygon_rot) {
-            startRotation(i);
-        }
+        if (is_polygon_rot)
+            startRotatingShape(i);
+
         glVertex2fv(this->vertices[i].coords);
     }
     glEnd();
@@ -95,13 +137,14 @@ void Polygon::drawPolygon() {
 
 /*
  * Callback function for mouse events, also handling modifier key presses.
- * Currently handling left click up, left click down, shift+left click, right click down.
+ * Currently handling left click up, left click down, shift+left click, alt+left click
+ * and right click down.
  */
 void Interactions::handleMouseEvent(int button, int state, int x, int y) {
 
-    bool left_click_down = (button == GLUT_LEFT_BUTTON  && state == GLUT_DOWN);
-    bool left_click_up   = (button == GLUT_LEFT_BUTTON  && state == GLUT_UP);
-    bool right_click_up  = (button == GLUT_RIGHT_BUTTON && state == GLUT_UP);
+    bool left_click_down = (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN);
+    bool left_click_up = (button == GLUT_LEFT_BUTTON && state == GLUT_UP);
+    bool right_click_up = (button == GLUT_RIGHT_BUTTON && state == GLUT_UP);
 
     /* glutGetModifiers() will return a specific value depending on which modifier key is pressed
      * 1 - Shift
@@ -116,16 +159,15 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
     }
     else if (left_click_down && polygon_created) {
         switch (modifier) {
-        case 1:printf("scaling\n"); break;
-        case 4:printf("Reverse rotation\n"); break;
-        default: shape.is_polygon_rot = false; break;
+        case 1:shape.is_polygon_scaling = true; break;
+        case 4:rotation_angle = -rotation_angle; break; // requires inverse rotation function??
+        default: shape.is_polygon_rot = false; break; // Stops rotation so shape can be transformed
         }
-        // stop rotation so transformation can be performed
-        shape.is_polygon_rot = false;
     }
-    else if (left_click_up && !shape.is_polygon_rot) { 
+    else if (left_click_up && (!shape.is_polygon_rot || shape.is_polygon_scaling)) {
         // restart rotation after any transformations are finished
         shape.is_polygon_rot = true;
+        shape.is_polygon_scaling = false;
     }
 
     if (left_click_up && !polygon_created) {
@@ -140,6 +182,7 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
         coord_count++;
     }
 
+    // Closes opengl window
     if (right_click_up) exit(0);
 
     glutPostRedisplay();
@@ -147,12 +190,18 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
 
 /*
  * Tracks position of mouse allowing for points to be positioned precisely
+ * and transformations to be applied on the polygon
  */
 void Interactions::handleMotionEvent(int x, int y) {
     current.setCoord((GLfloat)x, WINDOW_HEIGHT - (GLfloat)y);
 
-    if (polygon_created) {
-        doTranslation(x, y);
+    if (polygon_created && !shape.is_polygon_scaling) {
+        startTranslatingshape(x, y);
+    }
+    else if (polygon_created && shape.is_polygon_scaling) {
+        startScalingShape(x, y);
+        old_mouse_coord[0] = (GLfloat)x;
+        old_mouse_coord[1] = (GLfloat)y;
     }
     glutPostRedisplay();
 }
@@ -176,17 +225,19 @@ void Interactions::drawScene(void)
     else {
         shape.drawPolygon();
     }
-    
+
     glFlush();
 }
 
 /*
- *
+ * Timer callback function, Increments rotation_angle by 1 every frame
+ * resetting back to 0 once it hits 360 degrees.
+ * Currently running at 60fps
  */
 void Interactions::timer(int v) {
     if (shape.is_polygon_rot) {
-        rotation_angle += 1.0;
-        if (rotation_angle > 360.0) {
+        rotation_angle += 1.0f;
+        if (rotation_angle > 360.0f) {
             rotation_angle = 0;
         }
         glutPostRedisplay();

@@ -34,9 +34,8 @@ namespace Interactions {
 
         std::vector<Coordinate> vertices;
         int vert_count = 0;
-        bool is_polygon_clicked = false;
-        bool is_polygon_moving = false;
         bool is_polygon_rot = true;
+        bool is_polygon_scaling = false;
 
         Polygon(int v_count, std::vector<Coordinate> v) {
             vertices = v;
