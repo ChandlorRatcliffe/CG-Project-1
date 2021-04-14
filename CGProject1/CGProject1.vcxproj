@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="interactions.cpp" />
-    <ClCompile Include="UItest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="interactions.h" />
