@@ -139,9 +139,6 @@ void Coordinate::drawPoint() {
 void Polygon::drawPolygon() {
     glBegin(GL_POLYGON);
     for (auto i = 0; i < shape.vert_count; i++) {
-        if (this->is_rotating)
-            startRotatingShape(i);
-
         glVertex2fv(this->vertices[i].coords);
     }
     glEnd();
@@ -258,11 +255,10 @@ void Interactions::drawScene(void)
  * Currently running at 60fps
  */
 void Interactions::timer(int v) {
-    if (shape.is_rotating) {
-        rotation_angle += 1.0f;
-        if (rotation_angle > 360.0f) {
-            rotation_angle -= 360.0f;
-        }
+    if (shape.is_rotating && polygon_created) {
+        for (auto i = 0; i < shape.vert_count; i++)
+            startRotatingShape(i);
+        
         glutPostRedisplay();
     }
     glutTimerFunc(1000 / 60, timer, v);
