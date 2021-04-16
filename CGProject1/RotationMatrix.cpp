@@ -7,12 +7,12 @@
  * the given angle in degrees. Conversion to radians is handled
  * internally.
  */
-RotationMatrix::RotationMatrix(float angle) {
-	this->matrix[0][0] =  cos(deg2rad(angle));
-	this->matrix[0][1] = -sin(deg2rad(angle));
+RotationMatrix::RotationMatrix(float angleInDegrees) {
+	this->matrix[0][0] =  cos(deg2rad(angleInDegrees));
+	this->matrix[0][1] = -sin(deg2rad(angleInDegrees));
 	this->matrix[0][2] =  0.0;
-	this->matrix[1][0] =  sin(deg2rad(angle));
-	this->matrix[1][1] =  cos(deg2rad(angle));
+	this->matrix[1][0] =  sin(deg2rad(angleInDegrees));
+	this->matrix[1][1] =  cos(deg2rad(angleInDegrees));
 	this->matrix[1][2] =  0.0;
 	this->matrix[2][0] =  0.0;
 	this->matrix[2][1] =  0.0;
@@ -25,6 +25,6 @@ RotationMatrix::RotationMatrix(float angle) {
  * Since C++ uses math libraries that compute with radians,
  * conversion is necessary.
  */
-float RotationMatrix::deg2rad(float angle) {
-	return angle * PI / 180;
+float RotationMatrix::deg2rad(float angleInDegrees) {
+	return angleInDegrees * PI / 180;
 }

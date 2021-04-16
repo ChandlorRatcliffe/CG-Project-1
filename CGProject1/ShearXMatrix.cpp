@@ -3,7 +3,8 @@
 #include "CompositeMatrix.h"
 /**
  * ShearYMatrix constructs a homogeneous linear transformation matrix
- * intended to shear a 3 vector in the x direction with respect to the y-axis.
+ * intended to shear a 3 vector in the x direction with respect to the y-axis
+ * by a factor of sx.
  */
 ShearXMatrix::ShearXMatrix(float sx) {
 	this->matrix[0][0] = 1.0;
@@ -20,15 +21,15 @@ ShearXMatrix::ShearXMatrix(float sx) {
 /**
  * ShearYMatrix constructs a homogeneous linear transformation matrix
  * intended to shear a 3 vector in the x direction with respect to an
- * alternative vertical line specified by yAxis.
+ * alternative vertical line specified by yAxis by a factor of sx.
  */
 ShearXMatrix::ShearXMatrix(float sx, float yAxis) {
-	CompositeMatrix       C = CompositeMatrix();
-	TranslationMatrix   Tup = TranslationMatrix(0.0, yAxis);
-	TranslationMatrix Tdown = TranslationMatrix(0.0, -yAxis);
-	ShearXMatrix          S = ShearXMatrix(sx);
-	C.composeWith(&Tdown);
-	C.composeWith(&S);
-	C.composeWith(&Tup);
-	copyFrom(&C);
+	CompositeMatrix       composite = CompositeMatrix();
+	TranslationMatrix   translateUp = TranslationMatrix(0.0, yAxis);
+	TranslationMatrix translateDown = TranslationMatrix(0.0, -yAxis);
+	ShearXMatrix              shear = ShearXMatrix(sx);
+	composite.composeWith(&translateDown);
+	composite.composeWith(&shear);
+	composite.composeWith(&translateUp);
+	copyFrom(&composite);
 }

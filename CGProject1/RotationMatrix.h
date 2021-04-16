@@ -11,7 +11,7 @@ public:
      * the given angle in degrees. Conversion to radians is handled 
      * internally.
      */
-    RotationMatrix(float angle);
+    RotationMatrix(float angleInDegrees);
 private:
     /**
      * This level of detail for pi should be good enough
@@ -24,6 +24,6 @@ private:
      * Since C++ uses math libraries that compute with radians,
      * conversion is necessary.
      */
-    float deg2rad(float angle);
+    float deg2rad(float angleInDegrees);
 };
 
