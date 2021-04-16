@@ -11,7 +11,7 @@ Interactions::Polygon shape;
 
 bool polygon_created = false;
 int coord_count = 0;
-GLfloat rotation_angle = 90.0;
+GLfloat rotation_angle = 1.0;
 GLfloat centroid[2];
 GLfloat old_mouse_coord[2];
 
