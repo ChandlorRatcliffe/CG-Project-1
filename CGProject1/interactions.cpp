@@ -11,7 +11,7 @@ Interactions::Polygon shape;
 
 bool polygon_created = false;
 int coord_count = 0;
-GLfloat rotation_angle = 1.0;
+GLfloat rotation_angle = 10.0;
 GLfloat centroid[2];
 GLfloat old_mouse_coord[2];
 
@@ -184,11 +184,6 @@ void Interactions::handleMouseEvent(int button, int state, int x, int y) {
             case GLUT_ACTIVE_ALT:
                 // Reverses the rotation of the shape
                 rotation_angle = -rotation_angle;
-                break;
-
-            default:
-                // Stops rotation so shape can be translated
-                shape.is_rotating = false;
                 break;
             }
         }
