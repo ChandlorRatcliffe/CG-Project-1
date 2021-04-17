@@ -34,12 +34,15 @@ void calcCentroid() {
  * using the TransforamtionMatrix class
  */
 void startRotatingShape(int x) {
-    TransformationMatrix R  = RotationMatrix(rotation_angle);
-    TransformationMatrix T  = TranslationMatrix(centroid[0], centroid[1]);
-    TransformationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
-    T.composeWith(&R);
-    T.composeWith(&TI);
-    T.applyTo(shape.vertices[x].coords);
+    
+    CompositeMatrix   C  = CompositeMatrix();
+    RotationMatrix    R  = RotationMatrix(rotation_angle);
+    TranslationMatrix T  = TranslationMatrix(centroid[0], centroid[1]);
+    TranslationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
+    C.composeWith(&T);
+    C.composeWith(&R);
+    C.composeWith(&TI);
+    C.applyTo(shape.vertices[x].coords);
 }
 
 /*
@@ -64,15 +67,16 @@ void startScalingShape(int x, int y) {
         // no scaling performed
         sx = 1.0f; sy = 1.0f; 
     }
-
-    TransformationMatrix T  = TranslationMatrix(centroid[0], centroid[1]);
-    TransformationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
-    TransformationMatrix S  = ScaleMatrix(sx, sy);
-    T.composeWith(&S);
-    T.composeWith(&TI);
+    CompositeMatrix   C  = CompositeMatrix();
+    TranslationMatrix T  = TranslationMatrix(centroid[0], centroid[1]);
+    TranslationMatrix TI = TranslationMatrix(-centroid[0], -centroid[1]);
+    ScaleMatrix       S  = ScaleMatrix(sx, sy);
+    C.composeWith(&T);
+    C.composeWith(&S);
+    C.composeWith(&TI);
 
     for (int i = 0; i < shape.vert_count; i++) {
-        T.applyTo(shape.vertices[i].coords);
+        C.applyTo(shape.vertices[i].coords);
     }
 
     // calculate new center of the shape since we changed its size
