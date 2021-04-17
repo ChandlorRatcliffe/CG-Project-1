@@ -25,6 +25,7 @@ void resize(int w, int h) {
 	glLoadIdentity();
 }
 
+
 int main(int argc, char** argv) {
 
 	glutInit(&argc, argv);
